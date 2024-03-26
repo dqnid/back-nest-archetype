@@ -10,7 +10,7 @@ export class AppController {
 
   // Override default configuration for Rate limiting and duration.
   @Throttle({ default: { limit: 10, ttl: 1000 } })
-  @Auth(Role.Admin)
+  @Auth(Role.Public)
   @Get()
   getHello(): string {
     return this.appService.getHello();
