@@ -8,13 +8,14 @@ import {
   Request,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Public } from './constants';
+import { Role } from 'src/users/roles/role.enum';
+import { Auth } from './auth.decorator';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Public()
+  @Auth(Role.Public)
   @HttpCode(HttpStatus.OK)
   @Post('login')
   signIn(@Body() signInDto: Record<string, any>) {
@@ -24,5 +25,10 @@ export class AuthController {
   @Get('profile')
   getProfile(@Request() req) {
     return req.user;
+  }
+
+  @Get('options')
+  getOptions(@Request() req) {
+    return req.roles;
   }
 }

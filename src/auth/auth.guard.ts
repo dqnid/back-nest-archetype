@@ -5,9 +5,11 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { IS_PUBLIC_KEY, jwtConstants } from './constants';
+import { jwtConstants } from './constants';
 import { Request } from 'express';
 import { Reflector } from '@nestjs/core';
+import { ROLES_METADATA } from './auth.decorator';
+import { Role } from 'src/users/roles/role.enum';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -17,14 +19,15 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
-    if (isPublic) {
-      // 💡 See this condition
+    const decorator_roles = this.reflector.getAllAndOverride<Role[]>(
+      ROLES_METADATA,
+      [context.getHandler(), context.getClass()],
+    );
+
+    if (decorator_roles && decorator_roles.includes(Role.Public)) {
       return true;
     }
+
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
@@ -37,6 +40,13 @@ export class AuthGuard implements CanActivate {
       // 💡 We're assigning the payload to the request object here
       // so that we can access it in our route handlers
       request['user'] = payload;
+
+      const found = payload.roles.some((r: Role) =>
+        decorator_roles.includes(r),
+      );
+      if (!found) {
+        throw new UnauthorizedException();
+      }
     } catch {
       throw new UnauthorizedException();
     }

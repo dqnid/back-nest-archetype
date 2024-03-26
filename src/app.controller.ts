@@ -1,6 +1,8 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { Throttle } from '@nestjs/throttler';
+import { Auth } from './auth/auth.decorator';
+import { Role } from './users/roles/role.enum';
 
 @Controller()
 export class AppController {
@@ -8,6 +10,7 @@ export class AppController {
 
   // Override default configuration for Rate limiting and duration.
   @Throttle({ default: { limit: 10, ttl: 1000 } })
+  @Auth(Role.Admin)
   @Get()
   getHello(): string {
     return this.appService.getHello();
