@@ -22,6 +22,7 @@ export class AuthController {
     return this.authService.signIn(signInDto.username, signInDto.password);
   }
 
+  @Auth(Role.Admin)
   @Get('profile')
   getProfile(@Request() req) {
     return req.user;

@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Role } from './roles/role.enum';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from './entities/user.entity';
+import { Repository } from 'typeorm';
 
-export type User = {
+export type UserType = {
   id: number;
   username: string;
   password: string;
@@ -10,24 +13,24 @@ export type User = {
 
 @Injectable()
 export class UsersService {
-  private readonly mocked_users: User[] = [
-    {
-      id: 1,
-      username: 'dqnid',
-      password: '1234',
-      roles: [Role.Admin, Role.User],
-    },
-    {
-      id: 2,
-      username: 'albita',
-      password: '1234',
-      roles: [Role.User],
-    },
-  ];
+  constructor(
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+  ) {}
 
   //TODO: password should be encrypted, maybe with bcrypt: https://github.com/kelektiv/node.bcrypt.js#readme
 
-  async findOne(username: string): Promise<User | undefined> {
-    return this.mocked_users.find((user) => user.username === username);
+  async findOne(username: string): Promise<UserType | undefined> {
+    const db_user = await this.usersRepository.findOneBy({ username });
+    if (!db_user) return null;
+    //TODO: change this shabby mapping for a more adequate database structure
+    const user: UserType = {
+      id: db_user.id,
+      username: db_user.username,
+      password: db_user.password,
+      roles: db_user.roles.split(';') as Role[],
+    };
+    console.log(user);
+    return user;
   }
 }
