@@ -18,8 +18,6 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  //TODO: password should be encrypted, maybe with bcrypt: https://github.com/kelektiv/node.bcrypt.js#readme
-
   async findOne(username: string): Promise<UserType | undefined> {
     const db_user = await this.usersRepository.findOneBy({ username });
     if (!db_user) return null;
@@ -33,4 +31,15 @@ export class UsersService {
     console.log(user);
     return user;
   }
+
+  // async create(
+  //   username: string,
+  //   password: string,
+  //   roles: Role[],
+  // ): Promise<User | undefined> {
+  //   const roles_string = roles.join(';');
+  //   const create_result = this.usersRepository.create(
+  //     new User(username, password, roles_string),
+  //   );
+  // }
 }

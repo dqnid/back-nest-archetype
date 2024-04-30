@@ -52,6 +52,10 @@ These can be extended by simply adding new elements to the `src/users/roles/role
 getHello(): string { return "Hello!" }
 ```
 
+### JWT
+
+User login is managed by a `JWT` based structure. The client must send both username and password in the body of a `POST` method at `/auth/login`, which would return a `JWT` in case of success. This token must be used to interact with the server on every non-public route. Internally the server assumes the user passwords are stored hashed on a [Mariadb](https://mariadb.org/) database.
+
 ## Stay in touch
 
 - Author - [Daniel Heras Quesada](https://dqnid.com)
